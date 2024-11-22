@@ -21,7 +21,7 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-# ==== blueprint registration ======
+# ====== blueprint registration ======
 app.register_blueprint(user.bp, url_prefix='/api/user')
 app.register_blueprint(channel.bp, url_prefix='/api/channel')
 app.register_blueprint(message.bp, url_prefix='/api/message')

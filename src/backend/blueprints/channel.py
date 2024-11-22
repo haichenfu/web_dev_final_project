@@ -6,7 +6,6 @@ from functools import wraps
 bp = Blueprint('channel', __name__)
 
 # get a list of channels and amount of unread messages
-
 @bp.route('/all', methods=['GET'])
 @require_api_key
 def get_all_channels():
