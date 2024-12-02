@@ -41,6 +41,18 @@ def create_channel():
         return jsonify({"id": channel['id'], "name": channel_name}), 200
     except Exception as e:
         return jsonify({"message": "channel name already exist"}), 400
+    
+
+# get channel name by id
+@bp.route('/name/<int:channel_id>', methods=["GET"])
+@require_api_key
+def get_channel_name(channel_id):
+    channel = query_db('select * from channels where id = ?', [channel_id], one=True)
+    if channel:
+        return jsonify({"id": channel['id'], "name": channel['name']}), 200
+    else:
+        return jsonify({"message": "fail to get the channel name"}), 400
+
         
 
 

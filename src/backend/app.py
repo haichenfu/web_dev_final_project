@@ -1,9 +1,11 @@
 from flask import * 
 import sqlite3
 from blueprints import user, channel, message, reaction
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
 
 # These should make it so your Flask app always returns the latest version of
 # your HTML, CSS, and JS files. We would remove them from a production deploy,
@@ -29,4 +31,4 @@ app.register_blueprint(reaction.bp, url_prefix='/api/reaction')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=3000)

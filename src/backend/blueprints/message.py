@@ -14,10 +14,15 @@ def get_or_post_messages_of_channel(channel_id):
         # get a list of messages for channel
         messages = query_db(
             """select m.id as id, u.name as user_name, m.channel_id as channel_id, m.body as body, 
-            m.post_time as post_time, count(r.id) as num_replies, 
+            m.post_time as post_time, r.num_replies as num_replies,
             COALESCE(json_group_array(json_object('emoji', reac.emoji, 'count', reac.emoji_count)), '[]') as reactions
             from messages m
-            left join messages r on m.id = r.replies_to
+            left join (
+                select replies_to as message_id, COUNT(*) as num_replies
+                from messages
+                where replies_to is not null
+                group by replies_to
+            ) r on m.id = r.message_id
             left join users u on m.user_id = u.id
             left join (
                 select message_id, emoji, count(emoji) as emoji_count
@@ -28,13 +33,15 @@ def get_or_post_messages_of_channel(channel_id):
             group by m.id 
             order by m.post_time asc;""", 
             [channel_id])
-        messages_list = [{'id': message['id'], 
-                        'user_name': message["user_name"], 
-                        'channel_id': message['channel_id'], 
-                        'body': message['body'],
-                        'post_time': message['post_time'],
-                        'num_replies': message['num_replies'],
-                        'reactions': message['reactions']} for message in messages]
+        message_list = []
+        if messages:
+            message_list = [{'id': message['id'], 
+                            'user_name': message["user_name"], 
+                            'channel_id': message['channel_id'], 
+                            'body': message['body'],
+                            'post_time': message['post_time'],
+                            'num_replies': message['num_replies'],
+                            'reactions': json.loads(message['reactions'])} for message in messages]
         # update the latest timestamp of message_read
         api_key = request.headers.get('x-api-key')
         user = query_db('select * from users where api_key = ?', [api_key], one=True)
@@ -43,10 +50,8 @@ def get_or_post_messages_of_channel(channel_id):
             query_db("update message_reads set read_timestamp = CURRENT_TIMESTAMP where user_id = ? and channel_id = ?", [user['id'], channel_id])
         else:
             query_db("insert into message_reads (user_id, channel_id, read_timestamp) values (?, ?, CURRENT_TIMESTAMP)", [user['id'], channel_id])
-        if messages_list:
-            return jsonify({"messages": messages_list}), 200
-        else:
-            return jsonify({"message": "messages does not exist"}), 404
+        return jsonify({"messages": message_list}), 200
+
     # post a new message to the channel
     elif request.method == 'POST':
         api_key = request.headers.get('x-api-key')
@@ -63,7 +68,25 @@ def get_or_post_messages_of_channel(channel_id):
                             'post_time': message['post_time']}), 200
         else:
             return jsonify({"message": f"fail to add a new message to channel {channel_id}"}), 400
-        
+
+# GET - get message content by id  
+@bp.route('/id/<int:message_id>', methods=['GET'])
+@require_api_key
+def get_message_by_id(message_id):
+    message = query_db("""
+                    select m.id as id, u.name as user_name, m.body as body, m.post_time as post_time
+                    from messages m
+                    left join users u on m.user_id = u.id
+                    where m.id = ?
+                """, 
+                [message_id], one=True)
+    if message:
+        return jsonify({"id": message['id'],
+                        "user_name": message['user_name'],
+                        'body': message['body'],
+                        'post_time': message['post_time']}), 200
+    else:
+        return jsonify({"message": "message doesn't exist"}), 404
 
 # GET - get a list of all replies to a message
 # POST - post a reply to a message 
@@ -87,17 +110,17 @@ def get_or_post_reply(message_id):
             group by m.id
             order by m.post_time asc;
             """, [message_id], one=False)
-        replies_list = [{'id': reply['id'],
-                         'user_name': reply['user_name'],
-                         'channel_id': reply['channel_id'],
-                         'replies_to': reply['replies_to'],
-                         'body': reply['body'],
-                         'post_time': reply['post_time'],
-                         'reactions': reply['reactions']} for reply in replies]
-        if replies_list:
-            return jsonify({"replies_list": replies_list}), 200
-        else:
-            return jsonify({"message": "no existing replies"}), 404
+        replies_list = []
+        if replies: 
+            replies_list = [{'id': reply['id'],
+                            'user_name': reply['user_name'],
+                            'channel_id': reply['channel_id'],
+                            'replies_to': reply['replies_to'],
+                            'body': reply['body'],
+                            'post_time': reply['post_time'],
+                            'reactions': json.loads(reply['reactions'])} for reply in replies]
+        return jsonify({"replies_list": replies_list}), 200
+
     # post a new reply to the message
     elif request.method == 'POST':
         api_key = request.headers.get('x-api-key')

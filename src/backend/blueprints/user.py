@@ -44,11 +44,12 @@ def get_or_update_username():
         data = request.get_json()
         api_key = request.headers.get('x-api-key')
         user_name = data.get("username")
-        u = query_db("update users set name = ? where api_key = ?", [user_name, api_key])
-        if u:
-            return jsonify({"message": "success"}), 200
-        else:
+        try: 
+            query_db("update users set name = ? where api_key = ?", [user_name, api_key])
+        except Exception as e:
             return jsonify({"message": "username already exist"}), 400
+        return jsonify({"message": "success"}), 200
+            
     if request.method == 'GET':
         api_key = request.headers.get('x-api-key')
         if api_key == None:
@@ -66,7 +67,10 @@ def update_user_password():
     data = request.get_json()
     user_id = data.get("user_id")
     password = data.get("password")
-    query_db("update users set password = ? where id = ?", [password, user_id])
+    try:
+        query_db("update users set password = ? where id = ?", [password, user_id])
+    except Exception as e:
+        return jsonify({"message": "fail to update password"}), 400
     return jsonify({"message": "success"}), 200
 
 
