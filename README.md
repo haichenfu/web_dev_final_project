@@ -10,7 +10,8 @@ pip3 install -r requirements.txt
 cd src/backend
 flask run
 ```
-The login page can be accessed at the page localhost:5000/login.
+The login page can be accessed at the page `localhost:5000/login`.
+
 The project is built with frontend in React and backend in Flask. The react files are built with `npm run build` and serve as static files for the backend. 
 Please contact me at haichenfu@uchicago.edu / slack if you have any problems running the project! 
 
