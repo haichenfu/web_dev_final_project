@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
 const ReactionItem = ({ emoji, count, messageId }) => {
     const [users, setUsers] = useState([]);

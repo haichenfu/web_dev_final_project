@@ -4,7 +4,7 @@ from blueprints import user, channel, message, reaction
 from flask_cors import CORS
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/belay/build', static_url_path='')
 CORS(app)
 
 # These should make it so your Flask app always returns the latest version of
@@ -23,6 +23,15 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+@app.route('/')
+@app.route('/login')
+@app.route('/home')
+@app.route('/profile')
+@app.route('/channel')
+@app.route('/thread')
+def index():
+    return app.send_static_file('index.html')
+
 # ====== blueprint registration ======
 app.register_blueprint(user.bp, url_prefix='/api/user')
 app.register_blueprint(channel.bp, url_prefix='/api/channel')
@@ -31,4 +40,4 @@ app.register_blueprint(reaction.bp, url_prefix='/api/reaction')
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=5000)

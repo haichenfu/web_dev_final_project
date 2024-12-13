@@ -1,6 +1,5 @@
 import React from "react"
 import { Container, Row, Col } from "react-bootstrap"
-import ReactionList from "../reaction/ReactionList"
 
 const ReplyItem = ({ reply }) => {
     console.log(reply.length)

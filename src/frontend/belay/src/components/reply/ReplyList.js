@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import ReplyItem from "./ReplyItem";
 import {Row, Col, Button} from "react-bootstrap";
-import MessageItem from "../message/MessageItem";
 import { useNavigate } from "react-router-dom";
 
 

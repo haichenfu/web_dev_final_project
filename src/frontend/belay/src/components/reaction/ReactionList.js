@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import {Row, Col, Button} from "react-bootstrap";
+import React, { useState } from "react"
+import {Button} from "react-bootstrap";
 import ReactionItem from "./ReactionItem";
 import ReactionAddItem from "./ReactionAddItem";
 
