@@ -1,11 +1,9 @@
 from flask import * 
 import sqlite3
 from blueprints import user, channel, message, reaction
-from flask_cors import CORS
 
 
 app = Flask(__name__, static_folder='../frontend/belay/build', static_url_path='')
-CORS(app)
 
 # These should make it so your Flask app always returns the latest version of
 # your HTML, CSS, and JS files. We would remove them from a production deploy,
