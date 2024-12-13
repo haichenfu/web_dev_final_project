@@ -25,10 +25,11 @@ def close_connection(exception):
 @app.route('/login')
 @app.route('/home')
 @app.route('/profile')
-@app.route('/channel')
-@app.route('/thread')
-def index():
-    return app.send_static_file('index.html')
+@app.route('/channel/<path:subpath>')
+@app.route('/thread/<path:subpath>')
+@app.route('/<path:path>')
+def index(*args, **kwargs):
+    return send_from_directory(app.static_folder, 'index.html')
 
 # ====== blueprint registration ======
 app.register_blueprint(user.bp, url_prefix='/api/user')

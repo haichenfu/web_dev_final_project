@@ -23,8 +23,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/home" element={<HomePage />}/>
         <Route path="/login" element={<LoginPage />}/>
+        <Route path="/home" element={<PrivateRoute element={<HomePage />} />}/>
         <Route
           path="/profile"
           element={<PrivateRoute element={<ProfilePage />} />}
@@ -37,6 +37,7 @@ const App = () => {
           path="/thread/:channelId/:messageId"
           element={<PrivateRoute element={<ThreadPage />} />}
         />
+        <Route path="/*" element={<PrivateRoute element={<HomePage />} />} />
       </Routes>
     </Router>
   )
